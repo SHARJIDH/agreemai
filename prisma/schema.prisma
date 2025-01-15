@@ -1,0 +1,67 @@
+// This is your Prisma schema file
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id            String      @id @default(cuid())
+  name          String
+  email         String      @unique
+  password      String
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  image         String?
+  organization  Organization? @relation(fields: [orgId], references: [id])
+  orgId         String?
+}
+
+model Organization {
+  id          String    @id @default(cuid())
+  name        String
+  users       User[]
+  agreements  Agreement[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Agreement {
+  id          String    @id @default(cuid())
+  title       String
+  content     String
+  status      String    @default("draft") // draft, pending, signed, expired
+  docuSignId  String?   @unique
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  expiresAt   DateTime?
+  organization Organization @relation(fields: [orgId], references: [id])
+  orgId       String
+  aiAnalysis  AiAnalysis?
+  signatures  Signature[]
+}
+
+model AiAnalysis {
+  id          String    @id @default(cuid())
+  agreement   Agreement @relation(fields: [agreementId], references: [id])
+  agreementId String    @unique
+  summary     String
+  keyPoints   String    // JSON string of key points
+  risks       String    // JSON string of identified risks
+  sentiment   Float     // sentiment score
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Signature {
+  id          String    @id @default(cuid())
+  agreement   Agreement @relation(fields: [agreementId], references: [id])
+  agreementId String
+  signedAt    DateTime?
+  status      String    // pending, signed, rejected
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
