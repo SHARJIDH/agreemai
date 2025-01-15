@@ -25,6 +25,7 @@ model Organization {
   name        String
   users       User[]
   agreements  Agreement[]
+  templates   Template[]
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 }
@@ -42,18 +43,22 @@ model Agreement {
   orgId       String
   aiAnalysis  AiAnalysis?
   signatures  Signature[]
+  category    String?   // For manual categorization
+  templateId  String?   // Reference to a template if created from one
+  metadata    Json?     // Store additional metadata
 }
 
 model AiAnalysis {
-  id          String    @id @default(cuid())
-  agreement   Agreement @relation(fields: [agreementId], references: [id])
-  agreementId String    @unique
-  summary     String
-  keyPoints   String    // JSON string of key points
-  risks       String    // JSON string of identified risks
-  sentiment   Float     // sentiment score
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id              String    @id @default(cuid())
+  agreement       Agreement @relation(fields: [agreementId], references: [id])
+  agreementId     String    @unique
+  summary         String?   @db.Text
+  keyTerms        Json?     // Store extracted key terms
+  risks           Json?     // Store identified risks
+  category        String?   // Auto-categorized type
+  confidenceScore Float?    // AI confidence in analysis
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 }
 
 model Signature {
@@ -64,4 +69,16 @@ model Signature {
   status      String    // pending, signed, rejected
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+}
+
+model Template {
+  id          String    @id @default(cuid())
+  name        String
+  content     String
+  category    String
+  organization Organization @relation(fields: [orgId], references: [id])
+  orgId       String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  metadata    Json?     // Store template-specific metadata
 }
