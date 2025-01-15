@@ -103,8 +103,7 @@ export default function AnalyticsPage() {
               <YAxis />
               <Tooltip />
               <Legend />
-              <Line type="monotone" dataKey="created" stroke="#8884d8" />
-              <Line type="monotone" dataKey="completed" stroke="#82ca9d" />
+              <Line type="monotone" dataKey="count" stroke="#8884d8" />
             </LineChart>
           </div>
         </div>
