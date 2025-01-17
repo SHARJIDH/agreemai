@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import Analysis from './analysis';
+import Sign from './sign';
 import { PrismaClient } from '@prisma/client';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
@@ -103,35 +104,44 @@ function AgreementContent({ agreement }: { agreement: any }) {
         </TabsContent>
 
         <TabsContent value="signatures" className="space-y-4">
-          <Card className="p-6">
-            <h3 className="text-lg font-medium mb-4">Signatures</h3>
-            <div className="space-y-4">
-              {agreement.signatures.map((signature: any) => (
-                <div
-                  key={signature.id}
-                  className="flex items-center justify-between border-b pb-4 last:border-b-0 last:pb-0"
-                >
-                  <div>
-                    <p className="font-medium">{signature.signerEmail}</p>
-                    <p className="text-sm text-gray-500">
-                      {signature.signedAt
-                        ? `Signed on ${new Date(signature.signedAt).toLocaleDateString()}`
-                        : 'Pending signature'}
-                    </p>
-                  </div>
-                  <Badge
-                    className={
-                      signature.status === 'signed'
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-yellow-100 text-yellow-800'
-                    }
-                  >
-                    {signature.status}
-                  </Badge>
+          <div className="space-y-6">
+            <Sign agreementId={agreement.id} />
+            {agreement.signatures && agreement.signatures.length > 0 && (
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium">Signature Status</h3>
+                <div className="grid gap-4">
+                  {agreement.signatures.map((signature: any) => (
+                    <Card key={signature.id} className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-medium">{signature.signerEmail}</p>
+                          <p className="text-sm text-gray-500">
+                            {signature.signedAt
+                              ? `Signed on ${new Date(signature.signedAt).toLocaleDateString()}`
+                              : 'Pending signature'}
+                          </p>
+                        </div>
+                        <Badge
+                          className={
+                            signature.status === 'completed' ? 'bg-green-100 text-green-800' :
+                            signature.status === 'declined' ? 'bg-red-100 text-red-800' :
+                            'bg-yellow-100 text-yellow-800'
+                          }
+                        >
+                          {signature.status}
+                        </Badge>
+                      </div>
+                      {signature.signedAt && (
+                        <p className="text-sm text-gray-500 mt-2">
+                          Signed at: {new Date(signature.signedAt).toLocaleString()}
+                        </p>
+                      )}
+                    </Card>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </Card>
+              </div>
+            )}
+          </div>
         </TabsContent>
       </Tabs>
     </>

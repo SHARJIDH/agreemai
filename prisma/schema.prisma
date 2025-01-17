@@ -62,13 +62,18 @@ model AiAnalysis {
 }
 
 model Signature {
-  id          String    @id @default(cuid())
-  agreement   Agreement @relation(fields: [agreementId], references: [id])
-  agreementId String
-  signedAt    DateTime?
-  status      String    // pending, signed, rejected
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id                 String    @id @default(cuid())
+  agreement          Agreement @relation(fields: [agreementId], references: [id])
+  agreementId        String
+  signerEmail        String
+  signerName        String
+  status            String    @default("pending") // pending, completed, declined, voided
+  signedAt          DateTime?
+  docuSignEnvelopeId String?   @unique
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@unique([agreementId, signerEmail])
 }
 
 model Template {
